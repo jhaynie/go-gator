@@ -11,7 +11,7 @@ import (
 
 func TestToString(t *testing.T) {
 	assert := assert.New(t)
-	assert.Equal(ToString(nil), "", "should have been empty string")
+	assert.Equal(ToString(nil), "<nil>", "should have been <nil> string")
 	assert.Equal(ToString(""), "", "should have been empty string")
 	assert.Equal(ToString("123"), "123", "should have been 123")
 	assert.Equal(ToString(sql.NullString{String: "", Valid: false}), "", "should have been empty string")
@@ -41,6 +41,9 @@ func TestToString(t *testing.T) {
 	assert.Equal(ToString(mysql.NullTime{Time: tv, Valid: true}), tvs, "should have been "+tvs)
 	s := "abc"
 	assert.Equal(ToString(&s), "abc", "should have been abc")
+	sd := ToSQLDate("2017-03-17T21:35:27Z")
+	tm := ToTimestamp(sd)
+	assert.Equal(ToString(tm), "1489786527.0", "should have been 1489786527.0")
 }
 
 func TestSQLString(t *testing.T) {

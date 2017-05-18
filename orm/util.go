@@ -21,36 +21,75 @@ import (
 // ToString returns a string representation for the value passed
 func ToString(v interface{}) string {
 	if v == nil {
-		return ""
+		return "<nil>"
 	}
 	if s, ok := v.(string); ok {
 		return s
 	}
 	if s, ok := v.(*string); ok {
 		if s == nil {
-			return ""
+			return "<nil>"
 		}
 		return *s
 	}
 	if i, ok := v.(int); ok {
 		return fmt.Sprintf("%d", i)
 	}
+	if i, ok := v.(*int); ok {
+		if i == nil {
+			return "<nil>"
+		}
+		return fmt.Sprintf("%d", *i)
+	}
 	if i, ok := v.(int32); ok {
 		return fmt.Sprintf("%d", i)
+	}
+	if i, ok := v.(*int32); ok {
+		if i == nil {
+			return "<nil>"
+		}
+		return fmt.Sprintf("%d", *i)
 	}
 	if i, ok := v.(int64); ok {
 		return fmt.Sprintf("%d", i)
 	}
+	if i, ok := v.(*int64); ok {
+		if i == nil {
+			return "<nil>"
+		}
+		return fmt.Sprintf("%d", *i)
+	}
 	if f, ok := v.(float32); ok {
 		return fmt.Sprintf("%f", f)
+	}
+	if f, ok := v.(*float32); ok {
+		if f == nil {
+			return "<nil>"
+		}
+		return fmt.Sprintf("%f", *f)
 	}
 	if f, ok := v.(float64); ok {
 		return fmt.Sprintf("%f", f)
 	}
+	if f, ok := v.(*float64); ok {
+		if f == nil {
+			return "<nil>"
+		}
+		return fmt.Sprintf("%f", *f)
+	}
 	if b, ok := v.(bool); ok {
 		return fmt.Sprintf("%v", b)
 	}
+	if b, ok := v.(*bool); ok {
+		if b == nil {
+			return "<nil>"
+		}
+		return fmt.Sprintf("%v", *b)
+	}
 	if t, ok := v.(*time.Time); ok {
+		if t == nil {
+			return "<nil>"
+		}
 		return fmt.Sprintf("%v", t)
 	}
 	if t, ok := v.(time.Time); ok {
@@ -63,31 +102,52 @@ func ToString(v interface{}) string {
 		return fmt.Sprintf("%s", s.String)
 	}
 	if s, ok := v.(*sql.NullString); ok {
+		if s == nil {
+			return "<nil>"
+		}
 		return fmt.Sprintf("%s", s.String)
 	}
 	if i, ok := v.(sql.NullInt64); ok {
 		return fmt.Sprintf("%d", i.Int64)
 	}
 	if i, ok := v.(*sql.NullInt64); ok {
+		if i == nil {
+			return "<nil>"
+		}
 		return fmt.Sprintf("%d", i.Int64)
 	}
 	if f, ok := v.(sql.NullFloat64); ok {
 		return fmt.Sprintf("%f", f.Float64)
 	}
 	if f, ok := v.(*sql.NullFloat64); ok {
+		if f == nil {
+			return "<nil>"
+		}
 		return fmt.Sprintf("%f", f.Float64)
 	}
 	if b, ok := v.(sql.NullBool); ok {
 		return fmt.Sprintf("%v", b.Bool)
 	}
 	if b, ok := v.(*sql.NullBool); ok {
+		if b == nil {
+			return "<nil>"
+		}
 		return fmt.Sprintf("%v", b.Bool)
 	}
 	if t, ok := v.(mysql.NullTime); ok {
 		return fmt.Sprintf("%v", t.Time)
 	}
 	if t, ok := v.(*mysql.NullTime); ok {
+		if t == nil {
+			return "<nil>"
+		}
 		return fmt.Sprintf("%v", t.Time)
+	}
+	if t, ok := v.(*tspb.Timestamp); ok {
+		if t == nil {
+			return "<nil>"
+		}
+		return fmt.Sprintf("%v.%v", t.Seconds, t.Nanos)
 	}
 	return fmt.Sprintf("%v", v)
 }
