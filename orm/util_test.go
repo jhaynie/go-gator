@@ -9,6 +9,10 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type tmp struct {
+	msg string
+}
+
 func TestToString(t *testing.T) {
 	assert := assert.New(t)
 	assert.Equal(ToString(nil), "<nil>", "should have been <nil> string")
@@ -160,9 +164,9 @@ func TestSQLBool(t *testing.T) {
 func TestHash(t *testing.T) {
 	assert := assert.New(t)
 	v := HashStrings("1")
-	assert.Equal(v, "6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b", "should have been 6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b")
+	assert.Equal("b7b41276360564d4", v, "should have been b7b41276360564d4")
 	v = HashStrings("1", "2")
-	assert.Equal(v, "6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918", "should have been 6b51d431df5d7f141cbececcf79edf3dd861c3b4069f0b11661a3eefacbba918")
+	assert.Equal("5460f49adbe7aba2", v, "should have been 5460f49adbe7aba2")
 }
 
 func TestGeometry(t *testing.T) {
@@ -201,4 +205,136 @@ func TestJSON(t *testing.T) {
 	assert.Equal(`{
 	"a": "b"
 }`, Stringify(map[string]string{"a": "b"}, true))
+}
+
+func TestHashValues(t *testing.T) {
+	t.Parallel()
+	assert := assert.New(t)
+
+	assert.Equal("b7b41276360564d4", HashValues("1"))
+	assert.Equal("c990c404884a29c1", HashValues(1, true))
+
+	s := "1"
+	assert.Equal("b7b41276360564d4", HashValues(&s))
+
+	n := 1
+	assert.Equal("b7b41276360564d4", HashValues(&n))
+
+	n2 := 1
+	assert.Equal("b7b41276360564d4", HashValues(n2))
+
+	assert.Equal("b7b41276360564d4", HashValues(int32(1)))
+
+	assert.Equal("b7b41276360564d4", HashValues(int64(1)))
+
+	var intV = 12
+	assert.Equal("5460f49adbe7aba2", HashValues(intV))
+	assert.Equal("5460f49adbe7aba2", HashValues(&intV))
+
+	var int32V int32 = 12
+	assert.Equal("5460f49adbe7aba2", HashValues(&int32V))
+
+	var int64V int64 = 45
+	assert.Equal("fd6817dc570d1402", HashValues(&int64V))
+
+	var float32V float32 = 45
+	assert.Equal("d66eb8eb7ef9c413", HashValues(&float32V))
+
+	var float64V float64 = 455
+	assert.Equal("bbd50ab530eafec2", HashValues(&float64V))
+
+	var float32P *float32
+	assert.Equal("ef46db3751d8e999", HashValues(float32P))
+
+	var float64P *float64
+	assert.Equal("ef46db3751d8e999", HashValues(float64P))
+
+	var intP *int
+	assert.Equal("ef46db3751d8e999", HashValues(intP))
+	intP = &intV
+	assert.Equal("5460f49adbe7aba2", HashValues(intP))
+
+	var int32P *int32
+	assert.Equal("ef46db3751d8e999", HashValues(int32P))
+
+	var int64P *int64
+	assert.Equal("ef46db3751d8e999", HashValues(int64P))
+	assert.Equal("7c5b4e400f80bf7c", HashValues(nil))
+
+	var uintV uint = 1
+	assert.NotEmpty(HashValues(&uintV))
+	assert.Equal("b7b41276360564d4", HashValues(uintV))
+	var uintP = &uintV
+	assert.NotEmpty(HashValues(uintP))
+	uintP = nil
+	assert.Equal("7c5b4e400f80bf7c", HashValues(uintP))
+
+	boolV := false
+	var boolP *bool
+	assert.NotEmpty(HashValues(&boolV))
+	assert.Equal("d7c9b97948142e4a", HashValues(true))
+	assert.Equal("6d3f99ccc0c03a7a", HashValues(false))
+	boolP = nil
+	assert.NotEmpty(HashValues(&boolP))
+
+	obj := &tmp{msg: "mg"}
+	assert.Equal("2151b3b520c20d4f", HashValues(obj))
+	assert.Equal("393845fb4cad9040", HashValues(float32(23)))
+	assert.Equal("45abfe9e1ba43375", HashValues(float64(33)))
+
+	assert.Equal("ea8842e9ea2638fa", HashValues([]byte("hi")))
+}
+
+var result string
+
+// go test -run=Bench -bench=.  ./pkg/util
+func BenchmarkHashValuesString(b *testing.B) {
+	var r string
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		r = HashValues("1")
+	}
+	// prevent compiler optimizations
+	result = r
+}
+
+func BenchmarkHashValuesStringPointer(b *testing.B) {
+	var r string
+	p := "1"
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		r = HashValues(&p)
+	}
+	// prevent compiler optimizations
+	result = r
+}
+
+func BenchmarkHashValuesInt(b *testing.B) {
+	var r string
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		r = HashValues(n)
+	}
+	// prevent compiler optimizations
+	result = r
+}
+
+func BenchmarkHashValuesInt32(b *testing.B) {
+	var r string
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		r = HashValues(int32(n))
+	}
+	// prevent compiler optimizations
+	result = r
+}
+
+func BenchmarkHashValuesIntPtr(b *testing.B) {
+	var r string
+	// run the Fib function b.N times
+	for n := 0; n < b.N; n++ {
+		r = HashValues(&n)
+	}
+	// prevent compiler optimizations
+	result = r
 }
