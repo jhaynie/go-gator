@@ -2,6 +2,7 @@ package orm
 
 import (
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -162,4 +163,11 @@ func TestDeserializerConcatenatedStreams(t *testing.T) {
 	}))
 	assert.Equal(10, count)
 	assert.Equal("j", last)
+}
+
+func TestDeserializerInvalidJSON(t *testing.T) {
+	assert := assert.New(t)
+	assert.EqualError(Deserialize(strings.NewReader("hi"), func(line json.RawMessage) error {
+		return fmt.Errorf("shouldn't have gotten here")
+	}), "invalid json, expected either [ or {")
 }

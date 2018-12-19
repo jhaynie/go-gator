@@ -3,6 +3,7 @@ package orm
 import (
 	"bufio"
 	"encoding/json"
+	"fmt"
 	"io"
 )
 
@@ -46,6 +47,8 @@ func Deserialize(r io.Reader, dser Deserializer) error {
 				// have concatenated streams together
 				running = dec.More()
 			}
+		default:
+			return fmt.Errorf("invalid json, expected either [ or {")
 		}
 	}
 	return nil
